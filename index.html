@@ -19,7 +19,6 @@
     h1 { font-size: 28px; font-weight: 600; color: #3a1a00; text-align: center; }
     .subtitle { font-size: 15px; color: #a06030; text-align: center; margin-top: -0.75rem; }
 
-    /* Tabs */
     .tabs {
       display: flex;
       gap: 0;
@@ -39,10 +38,7 @@
       transition: background 0.2s, color 0.2s;
       font-family: inherit;
     }
-    .tab-btn.active {
-      background: #e87a2a;
-      color: white;
-    }
+    .tab-btn.active { background: #e87a2a; color: white; }
 
     .wheel-wrapper { position: relative; width: 340px; height: 340px; max-width: 95vw; }
     #wheelCanvas { display: block; border-radius: 50%; box-shadow: 0 4px 24px rgba(0,0,0,0.12); width: 100%; height: 100%; }
@@ -54,13 +50,32 @@
     .spin-btn:active { transform: scale(0.97); }
     .spin-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
 
-    .result-grid { display: grid; gap: 8px; width: 100%; max-width: 380px; }
+    .result-grid { display: grid; gap: 10px; width: 100%; max-width: 380px; }
     .result-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
     .result-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 
-    .result-card { display: flex; flex-direction: column; align-items: center; gap: 4px; background: white; border-radius: 12px; padding: 10px 6px; border: 1.5px solid #f0d0b0; transition: border-color 0.3s, background 0.3s; }
-    .result-card.highlight { border-color: #e87a2a; background: #fff3e6; }
-    .result-emoji { font-size: 24px; line-height: 1; }
+    .result-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: white;
+      border-radius: 12px;
+      padding: 12px 6px;
+      border: 2px solid #f0d0b0;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    @keyframes blink-border {
+      0%   { border-color: #f0d0b0; box-shadow: none; }
+      25%  { border-color: #e87a2a; box-shadow: 0 0 0 3px rgba(232,122,42,0.35); }
+      50%  { border-color: #f0d0b0; box-shadow: none; }
+      75%  { border-color: #e87a2a; box-shadow: 0 0 0 3px rgba(232,122,42,0.35); }
+      100% { border-color: #f0d0b0; box-shadow: none; }
+    }
+    .result-card.blink { animation: blink-border 0.8s ease; }
+
+    .result-emoji { font-size: 26px; line-height: 1; }
     .result-label { font-size: 11px; color: #555; text-align: center; line-height: 1.3; font-weight: 500; }
     .result-category { font-size: 10px; color: #aaa; text-align: center; }
 
@@ -76,8 +91,8 @@
   <p class="subtitle">Dreh die Räder und erfinde deine Geschichte!</p>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchMode('beginner')">Beginner</button>
-    <button class="tab-btn" onclick="switchMode('advanced')">Fortgeschritten</button>
+    <button class="tab-btn active" onclick="switchMode('beginner', this)">Beginner</button>
+    <button class="tab-btn" onclick="switchMode('advanced', this)">Fortgeschritten</button>
   </div>
 
   <div class="wheel-wrapper">
@@ -118,14 +133,14 @@ const modes = {
         { emoji: "🦁", label: "Löwe" }, { emoji: "🦋", label: "Schmetterling" },
       ]},
     ],
+    showStory: true,
     buildStory(sel) {
       const [figur, ort, tier] = sel.map(s => s.label);
-      const f = figur, o = ort, t = tier;
       const templates = [
-        `Es war einmal eine ${f}, die allein in einem ${o} lebte. Eines Morgens klopfte ein ${t} an ihre Tür – und bat um Hilfe...`,
-        `Im großen ${o} wohnte ein ${t}, der sich sehr einsam fühlte. Da kam eine freundliche ${f} vorbei und alles änderte sich...`,
-        `Eine ${f} verirrte sich im ${o}. Zum Glück fand sie einen ${t}, der den Weg nach Hause kannte – aber er hatte eine Bitte...`,
-        `Der ${t} im ${o} hatte ein Geheimnis. Nur die mutige ${f} traute sich, ihn danach zu fragen...`,
+        `Es war einmal eine ${figur}, die allein in einem ${ort} lebte. Eines Morgens klopfte ein ${tier} an ihre Tür – und bat um Hilfe...`,
+        `Im großen ${ort} wohnte ein ${tier}, der sich sehr einsam fühlte. Da kam eine freundliche ${figur} vorbei und alles änderte sich...`,
+        `Eine ${figur} verirrte sich im ${ort}. Zum Glück fand sie einen ${tier}, der den Weg nach Hause kannte – aber er hatte eine Bitte...`,
+        `Der ${tier} im ${ort} hatte ein Geheimnis. Nur die mutige ${figur} traute sich, ihn danach zu fragen...`,
       ];
       return templates[Math.floor(Math.random() * templates.length)];
     }
@@ -183,23 +198,21 @@ const modes = {
         { emoji: "🏃", label: "Flucht" }, { emoji: "🎁", label: "Geschenk" },
       ]},
     ],
-    buildStory(sel) {
-      const [figur, ort, gegenstand, tier, aufgabe] = sel.map(s => s.label);
-      const f = figur, o = ort, g = gegenstand, t = tier, a = aufgabe;
-      const templates = [
-        `Als die ${f} den geheimnisvollen ${g} im ${o} entdeckte, ahnte sie nicht, was das bedeutete – bis ein ${t} ihr flüsterte: Nur du kannst die ${a} vollenden...`,
-        `Seit Jahren lag ein Schatten über dem ${o}. Die ${f} wusste: Nur mit dem ${g} und der Hilfe eines ${t} war die ${a} überhaupt möglich...`,
-        `Der ${t} hatte den ${g} bewacht, seit irgendjemand sich erinnern konnte. Dann betrat die ${f} den ${o} – und stellte die eine Frage, die alles über die ${a} verändern sollte...`,
-        `Im tiefsten Teil des ${o} wartete die ${a} auf jemanden, der mutig genug war. Die ${f} nahm den ${g} und folgte dem ${t} ins Unbekannte...`,
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
-    }
+    showStory: false,
+    buildStory() { return ""; }
   }
 };
 
-const radiiMap = { 3: [155, 108, 62], 5: [155, 126, 98, 72, 46] };
 const SIZE = 340;
 const cx = SIZE / 2, cy = SIZE / 2;
+
+// Radii calculated so innermost ring has same slice height as others
+// 5 rings: equal-width bands inside radius 155
+// band width = 155 / 5 = 31px each
+const radiiMap = {
+  3: [155, 105, 55],
+  5: [155, 124, 93, 62, 31]
+};
 
 let currentMode = 'beginner';
 let angles = [0, 0, 0, 0, 0];
@@ -214,17 +227,21 @@ function drawWheel() {
   ctx.clearRect(0, 0, SIZE, SIZE);
   const rings = getRings();
   const radii = getRadii();
+  const bandW = radii[0] / rings.length;
+
   for (let r = 0; r < rings.length; r++) {
     const outerR = radii[r];
-    const innerR = r < rings.length - 1 ? radii[r+1] + 3 : 0;
+    const innerR = r < rings.length - 1 ? radii[r + 1] : 0;
     const items = rings[r].items;
     const n = items.length;
     const sliceAngle = (2 * Math.PI) / n;
     const offset = angles[r];
+
     for (let i = 0; i < n; i++) {
       const startA = offset + i * sliceAngle - Math.PI / 2;
       const endA = startA + sliceAngle;
       const midA = (startA + endA) / 2;
+
       ctx.beginPath();
       ctx.moveTo(cx + innerR * Math.cos(startA), cy + innerR * Math.sin(startA));
       ctx.arc(cx, cy, outerR, startA, endA);
@@ -233,20 +250,25 @@ function drawWheel() {
       ctx.fillStyle = i % 2 === 0 ? rings[r].color : "#FFFFFF";
       ctx.fill();
       ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
-      const emojiR = (outerR + innerR) / 2;
+
+      // emoji centered in band, size based on band width
+      const emojiR = innerR + (outerR - innerR) / 2;
       const ex = cx + emojiR * Math.cos(midA);
       const ey = cy + emojiR * Math.sin(midA);
-      const fontSize = Math.max(9, Math.round((outerR - innerR) * 0.46));
+      // font size scales with band width, consistent across all rings
+      const fontSize = Math.max(9, Math.round(bandW * 0.62));
       ctx.font = fontSize + "px serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(items[i].emoji, ex, ey);
     }
   }
+
+  // center dot
   ctx.beginPath();
-  ctx.arc(cx, cy, 18, 0, 2 * Math.PI);
+  ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
   ctx.fillStyle = "#e87a2a";
   ctx.fill();
 }
@@ -276,21 +298,25 @@ function buildResultGrid() {
   ).join('');
 }
 
-function updateCards(selected, highlight) {
+function updateCards(selected, animate) {
   selected.forEach((item, i) => {
     const card = document.getElementById('rc' + i);
     if (!card) return;
     card.querySelector('.result-emoji').textContent = item.emoji;
     card.querySelector('.result-label').textContent = item.label;
-    if (highlight) { card.classList.add('highlight'); setTimeout(() => card.classList.remove('highlight'), 1000); }
+    if (animate) {
+      card.classList.remove('blink');
+      void card.offsetWidth; // reflow to restart animation
+      card.classList.add('blink');
+    }
   });
 }
 
-function switchMode(mode) {
+function switchMode(mode, btn) {
   currentMode = mode;
   angles = [0, 0, 0, 0, 0];
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   document.getElementById('storyPrompt').classList.remove('visible');
   buildResultGrid();
   drawWheel();
@@ -304,24 +330,33 @@ function spinAll() {
   btn.disabled = true;
   btn.textContent = "🌀 Dreht sich...";
   document.getElementById('storyPrompt').classList.remove('visible');
+
   const targets = rings.map(() => Math.random() * 6 * Math.PI + 4 * Math.PI);
   const starts = angles.slice(0, rings.length);
   const duration = 2800;
   const start = performance.now();
+
   function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
   function frame(now) {
     const t = Math.min((now - start) / duration, 1);
     const eased = easeOut(t);
     for (let r = 0; r < rings.length; r++) { angles[r] = starts[r] + targets[r] * eased; }
     drawWheel();
-    if (t < 1) { requestAnimationFrame(frame); } else {
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
       spinning = false;
       btn.disabled = false;
       btn.textContent = "✨ Nochmal drehen!";
       const selected = getSelected();
       updateCards(selected, true);
-      document.getElementById('storyText').textContent = modes[currentMode].buildStory(selected);
-      document.getElementById('storyPrompt').classList.add('visible');
+
+      const mode = modes[currentMode];
+      if (mode.showStory) {
+        document.getElementById('storyText').textContent = mode.buildStory(selected);
+        document.getElementById('storyPrompt').classList.add('visible');
+      }
     }
   }
   requestAnimationFrame(frame);
